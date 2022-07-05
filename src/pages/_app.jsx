@@ -5,8 +5,9 @@ import Head from 'next/head';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { CacheProvider } from '@emotion/react';
-import theme from '../src/theme';
-import createEmotionCache from '../src/createEmotionCache';
+import createEmotionCache from '../lib/createEmotionCache';
+import theme from '../lib/theme';
+import Navbar from '../components/Navbar';
 
 // Client-side cache shared for the whole session
 // of the user in the browser.
@@ -22,6 +23,7 @@ export default function MyApp(props) {
       </Head>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <Navbar />
         {/* eslint-disable-next-line react/jsx-props-no-spreading */}
         <Component {...pageProps} />
       </ThemeProvider>

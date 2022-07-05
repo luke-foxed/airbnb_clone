@@ -3,8 +3,8 @@ import Document, {
   Html, Head, Main, NextScript,
 } from 'next/document'
 import createEmotionServer from '@emotion/server/create-instance'
-import theme from '../src/theme'
-import createEmotionCache from '../src/createEmotionCache'
+import createEmotionCache from '../lib/createEmotionCache'
+import theme from '../lib/theme'
 
 // sourced from https://www.geeksforgeeks.org/how-to-use-material-ui-with-next-js/
 
