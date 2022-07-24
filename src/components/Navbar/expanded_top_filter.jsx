@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { Search } from '@mui/icons-material'
-import { Button, Divider, Grid, IconButton, Paper, styled, TextField } from '@mui/material'
+import { Button, Divider, Grid, IconButton, Paper, styled, TextField, Typography } from '@mui/material'
 import theme from '../../lib/theme'
 import { Fragment } from 'react'
 import { useRef } from 'react'
@@ -15,35 +15,40 @@ const FiltersContainer = styled(Paper)({
   height: '64px',
   borderRadius: '30px',
   margin: 'auto',
-  border: '1px solid #e1e3e1',
+  border: '1px solid #e5e6e5',
   boxShadow: 'none',
 })
 
 const GridLayout = styled('div')({
   display: 'grid',
   width: '100%',
+  borderRadius: '30px',
   button: {
     textTransform: 'none',
-    paddingLeft: '25px',
     fontWeight: '600',
     fontSize: '13px',
     justifyContent: 'start',
   },
 })
 
-const Filter = styled(Grid)(({ active }) => ({
+const FilterButton = styled('div')({
   height: '63px',
-  padding: '15px',
+  display: 'flex',
+  alignItems: 'center',
+  padding: '0 10px 0 20px',
+  justifyContent: 'space-between',
   borderRadius: '30px',
-  ':hover': {
-    backgroundColor: !active && '#e1e3e1',
+  ':focus-within': {
+    background: '#fff !important',
+    boxShadow: '0px 0px 20px 3px rgba(0,0,0,0.2)',
   },
-
-  boxShadow: active && '0px 0px 20px 3px rgba(0,0,0,0.2)',
-}))
+  ':hover': {
+    backgroundColor: '#e5e6e5',
+  },
+})
 
 const StyledFilterInput = styled(TextField)({
-  height: '64px',
+  marginTop: '8px',
   '& .MuiInputLabel-root': {
     color: '#000 !important',
     fontWeight: '600',
@@ -76,13 +81,13 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
       <Grid container justifyContent="space-evenly" alignItems="center" style={{ height: '100%' }}>
         <GridLayout
           style={{
-            gridTemplateColumns: currentTab === 0 ? '1.5fr 2px 1fr 2px 1fr 2px 1fr' : '1fr 2px 1fr 2px 1fr',
+            background: !!activeFilter && '#f2f3f2',
+            gridTemplateColumns: currentTab === 0 ? '2fr 2px 1fr 2px 1fr 2px 1.5fr' : '2fr 2px 1.5fr 2px 1.5fr',
           }}
         >
-          <Filter
+          <FilterButton
             role="button"
             onClick={() => setActiveFilter('where')}
-            active={activeFilter === 'where'}
             ref={activeFilter === 'where' ? selectedFilterRef : null}
           >
             <StyledFilterInput
@@ -93,13 +98,12 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
               size="small"
               inputRef={(input) => activeFilter === 'where' && input && input.focus()}
             />
-          </Filter>
+          </FilterButton>
 
-          <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e1e3e1' }} />
+          <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
 
-          <Filter
+          <FilterButton
             onClick={() => setActiveFilter('checkin')}
-            active={activeFilter === 'checkin'}
             ref={activeFilter === 'checkin' ? selectedFilterRef : null}
           >
             <StyledFilterInput
@@ -110,16 +114,15 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
               size="small"
               inputRef={(input) => activeFilter === 'checkin' && input && input.focus()}
             />
-          </Filter>
+          </FilterButton>
 
-          <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e1e3e1' }} />
+          <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
 
           {currentTab === 0 && (
             <Fragment>
-              <Filter
-                onClick={() => setActiveFilter('checkout')}
-                active={activeFilter === 'checkout'}
-                ref={activeFilter === 'checkout' ? selectedFilterRef : null}
+              <FilterButton
+                onClick={() => setActiveFilter('who')}
+                ref={activeFilter === 'who' ? selectedFilterRef : null}
               >
                 <StyledFilterInput
                   variant="standard"
@@ -127,9 +130,9 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
                   placeholder="Add dates"
                   focused
                   size="small"
-                  inputRef={(input) => activeFilter === 'checkout' && input && input.focus()}
+                  inputRef={(input) => activeFilter === 'who' && input && input.focus()}
                 />
-              </Filter>
+              </FilterButton>
 
               <Divider
                 orientation="vertical"
@@ -139,12 +142,22 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
             </Fragment>
           )}
 
-          <div>
-            <Button style={{ color: '#555', fontWeight: '400' }}>Who</Button>
-            <IconButton style={{ background: theme.palette.primary.main, color: '#FFF' }}>
-              <Search fontSize="small" />
+          <FilterButton
+            onClick={() => setActiveFilter('checkout')}
+            ref={activeFilter === 'checkout' ? selectedFilterRef : null}
+          >
+            <StyledFilterInput
+              variant="standard"
+              label="Who"
+              placeholder="Add guests"
+              focused
+              size="small"
+              inputRef={(input) => activeFilter === 'checkout' && input && input.focus()}
+            />
+            <IconButton style={{ background: theme.palette.primary.main, color: '#FFF' }} size="large">
+              <Search />
             </IconButton>
-          </div>
+          </FilterButton>
         </GridLayout>
       </Grid>
     </FiltersContainer>
