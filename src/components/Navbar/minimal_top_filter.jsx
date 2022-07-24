@@ -33,20 +33,20 @@ const MinimalTopFilters = ({ onFilterClick }) => (
   <FiltersContainer>
     <Grid container justifyContent="space-evenly" alignItems="center" style={{ height: '100%' }}>
       <GridLayout>
-        <Button style={{ color: '#333' }} onClick={() => onFilterClick(0)}>
+        <Button style={{ color: '#333' }} onClick={() => onFilterClick('where')}>
           Anywhere
         </Button>
 
         <Divider orientation="vertical" flexItem />
 
-        <Button style={{ color: '#333' }} onClick={() => onFilterClick(1)}>
+        <Button style={{ color: '#333' }} onClick={() => onFilterClick('checkin')}>
           Any Week
         </Button>
 
         <Divider orientation="vertical" flexItem />
 
         <div>
-          <Button style={{ color: '#555', fontWeight: '400' }} onClick={() => onFilterClick(1)}>
+          <Button style={{ color: '#555', fontWeight: '400' }} onClick={() => onFilterClick('who')}>
             Add Guests
           </Button>
           <IconButton style={{ background: theme.palette.primary.main, color: '#FFF' }}>

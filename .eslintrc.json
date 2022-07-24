@@ -35,7 +35,7 @@
     "semi": "off",
     "react/react-in-jsx-scope": "off",
     "react/function-component-definition": "off",
-    "max-lines": ["error", { "max": 120, "skipComments": true }],
+    "max-lines": ["error", { "max": 120, "skipComments": true }, "warning", { "max": 120, "skipComments": true }],
     "object-curly-newline": "off"
   }
 }

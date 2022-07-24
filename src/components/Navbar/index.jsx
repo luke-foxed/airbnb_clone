@@ -1,19 +1,23 @@
 import { AppBar, Grid, styled } from '@mui/material'
 import { useState } from 'react'
-import ExpandedTopFilters from './expanded_top_filter'
+import ExpandedTopFilter from './expanded_top_filter'
+import FilterTabs from './filter_tabs'
 import MinimalTopFilters from './minimal_top_filter'
 
 const StyledTopBar = styled(AppBar)({
   height: '80px',
   background: 'white',
   color: 'black',
+  boxShadow: 'none',
+  borderBottom: '1px solid #e1e3e1',
 })
 
 const Navbar = () => {
-  const [activeFilterTab, setActiveFilterTab] = useState(null)
+  const [activeFilter, setActiveFilter] = useState(null)
+  const [activeTab, setActiveTab] = useState(0)
 
   return (
-    <StyledTopBar position="sticky">
+    <StyledTopBar position="sticky" style={{ height: activeFilter ? 160 : 80 }}>
       <Grid
         style={{ width: '70%', margin: 'auto' }}
         container
@@ -23,14 +27,19 @@ const Navbar = () => {
       >
         <img src="/logo.svg" alt="me" width="100" />
         <div>
-          {activeFilterTab !== null ? (
-            <ExpandedTopFilters currentTab={activeFilterTab} />
+          {activeFilter ? (
+            <FilterTabs currentTab={activeTab} onChangeTab={(tab) => setActiveTab(tab)} />
           ) : (
-            <MinimalTopFilters onFilterClick={(val) => setActiveFilterTab(val)} />
+            <MinimalTopFilters onFilterClick={(val) => setActiveFilter(val)} />
           )}
         </div>
         <div>account</div>
       </Grid>
+      {activeFilter && (
+        <div style={{ paddingBottom: '20px' }}>
+          <ExpandedTopFilter currentTab={activeTab} />
+        </div>
+      )}
     </StyledTopBar>
   )
 }
