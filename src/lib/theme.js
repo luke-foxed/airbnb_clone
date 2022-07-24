@@ -15,6 +15,23 @@ const theme = createTheme({
       main: red.A400,
     },
   },
+  typography: {
+    fontFamily: ['-apple-system', 'BlinkMacSystemFont', 'Montserrat'],
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          ':hover': {
+            backgroundColor: 'inherit !important',
+          },
+        },
+      },
+      defaultProps: {
+        disableRipple: true,
+      },
+    },
+  },
 })
 
 export default theme

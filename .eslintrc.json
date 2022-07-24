@@ -34,7 +34,8 @@
     "linebreak-style": 0,
     "semi": "off",
     "react/react-in-jsx-scope": "off",
-    "react/function-component-definition": "off"
+    "react/function-component-definition": "off",
+    "max-lines": ["error", { "max": 120, "skipComments": true }],
+    "object-curly-newline": "off"
   }
-  
 }
