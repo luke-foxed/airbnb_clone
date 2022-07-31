@@ -8,6 +8,9 @@ import { useState } from 'react'
 import { useEffect } from 'react'
 import useOutsideClick from '../../lib/hooks/use_outside_click'
 
+const SEARCH_BUTTON_GRADIENT =
+  'linear-gradient(90deg, rgb(230,30,77) 0%, rgb(227,28,95) 50%, rgb(215,4,102) 67.5%, rgb(209,29,96) 100%)'
+
 const FiltersContainer = styled(Paper)({
   background: '#FFF',
   cursor: 'pointer',
@@ -68,9 +71,33 @@ const StyledFilterInput = styled(TextField)({
   },
 })
 
+const SearchButton = styled(IconButton)(({ theme, expanded }) => ({
+  background: expanded ? SEARCH_BUTTON_GRADIENT : theme.palette.primary.main,
+  '-webkit-backface-visibility': 'hidden',
+
+  color: '#FFF',
+  width: expanded ? '112px' : '50px',
+  borderRadius: expanded ? '25px' : 'inherit',
+  overflow: 'hidden',
+  transition: 'all 0.2s ease',
+  ':hover': {
+    background: SEARCH_BUTTON_GRADIENT,
+  },
+}))
+
 const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
   const [activeFilter, setActiveFilter] = useState(currentFilter)
   const selectedFilterRef = useRef(null)
+
+  const getGridLayout = () => {
+    let gridTemplateColumns = ''
+    if (currentTab === 0) {
+      gridTemplateColumns = `2fr 2px 1fr 2px 1fr 2px ${activeFilter ? '2fr' : '1.5fr'}`
+    } else {
+      gridTemplateColumns = `2fr 2px 1.5fr 2px ${activeFilter ? '2fr' : '1.5fr'}`
+    }
+    return gridTemplateColumns
+  }
 
   useOutsideClick(selectedFilterRef, () => {
     setActiveFilter(null)
@@ -79,12 +106,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
   return (
     <FiltersContainer>
       <Grid container justifyContent="space-evenly" alignItems="center" style={{ height: '100%' }}>
-        <GridLayout
-          style={{
-            background: !!activeFilter && '#f2f3f2',
-            gridTemplateColumns: currentTab === 0 ? '2fr 2px 1fr 2px 1fr 2px 1.5fr' : '2fr 2px 1.5fr 2px 1.5fr',
-          }}
-        >
+        <GridLayout style={{ background: !!activeFilter && '#f2f3f2', gridTemplateColumns: getGridLayout() }}>
           <FilterButton
             role="button"
             onClick={() => setActiveFilter('where')}
@@ -154,9 +176,10 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
               size="small"
               inputRef={(input) => activeFilter === 'checkout' && input && input.focus()}
             />
-            <IconButton style={{ background: theme.palette.primary.main, color: '#FFF' }} size="large">
+            <SearchButton size="large" expanded={!!activeFilter}>
               <Search />
-            </IconButton>
+              {activeFilter && <div style={{ marginLeft: '4px', fontSize: '16px' }}>Search</div>}
+            </SearchButton>
           </FilterButton>
         </GridLayout>
       </Grid>
