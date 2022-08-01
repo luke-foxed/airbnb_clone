@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { Search } from '@mui/icons-material'
+import { Close, Search } from '@mui/icons-material'
 import {
   Button,
   Divider,
@@ -48,21 +48,19 @@ const GridLayout = styled('div')({
   },
 })
 
-const FilterButton = styled('div')({
+const FilterButton = styled('div', { shouldForwardProp: (props) => props !== 'active' })(({ active }) => ({
   height: '63px',
   display: 'flex',
   alignItems: 'center',
   padding: '0 10px 0 20px',
   justifyContent: 'space-between',
   borderRadius: '30px',
-  ':focus-within': {
-    background: '#fff !important',
-    boxShadow: '0px 0px 20px 3px rgba(0,0,0,0.2)',
-  },
+  background: active && '#fff', // if clicking dropdown below button, persist appearance of being focused
+  boxShadow: active && '0px 0px 20px 3px rgba(0,0,0,0.2)',
   ':hover': {
-    backgroundColor: '#e5e6e5',
+    backgroundColor: !active && '#e5e6e5',
   },
-})
+}))
 
 const StyledFilterInput = styled(TextField)({
   marginTop: '8px',
@@ -80,28 +78,37 @@ const StyledFilterInput = styled(TextField)({
       fontSize: '12px',
       color: '#222222',
       opacity: 1,
+      fontWeight: '400',
     },
+    fontWeight: '600',
     fontSize: '12px',
   },
 })
 
-const SearchButton = styled(IconButton)(({ theme, expanded }) => ({
-  background: expanded ? SEARCH_BUTTON_GRADIENT : theme.palette.primary.main,
-  '-webkit-backface-visibility': 'hidden',
+const SearchButton = styled(IconButton, { shouldForwardProp: (props) => props !== 'expanded' })(
+  ({ theme, expanded }) => ({
+    background: expanded ? SEARCH_BUTTON_GRADIENT : theme.palette.primary.main,
+    color: '#FFF',
+    width: expanded ? '112px' : '50px',
+    borderRadius: expanded ? '25px' : 'inherit',
+    overflow: 'hidden',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      background: SEARCH_BUTTON_GRADIENT,
+    },
+  })
+)
 
-  color: '#FFF',
-  width: expanded ? '112px' : '50px',
-  borderRadius: expanded ? '25px' : 'inherit',
-  overflow: 'hidden',
-  transition: 'all 0.2s ease',
-  ':hover': {
-    background: SEARCH_BUTTON_GRADIENT,
+const ClearButton = styled(IconButton, { shouldForwardProp: (props) => props !== 'expanded' })({
+  backgroundColor: '#f2f3f2',
+  svg: {
+    color: '#000',
   },
-}))
+})
 
 const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
   const [activeFilter, setActiveFilter] = useState(currentFilter)
-  const [destination, setDestination] = useState(null)
+  const [location, setLocation] = useState('')
   const [dates, setDates] = useState(null)
   const [guests, setGuests] = useState(null)
   const [selectedRef, setSelectedRef] = useState(null)
@@ -120,23 +127,27 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
     setActiveFilter(null)
   })
 
+  // focus input if the button surrounding the input us clicked also
   useEffect(() => {
     if (selectedRef) {
       const input = selectedRef.querySelector('input')
-      console.log('INPUT', input)
-      if (input) {
-        input.focus()
-      }
+      input?.focus()
     }
   }, [selectedRef])
 
-  console.log('SELECTED', selectedRef)
+  const handleLocationSelect = (val) => {
+    setActiveFilter('checkin')
+    setLocation(val)
+  }
+
+  console.log('active filetr', activeFilter)
 
   return (
     <FiltersContainer>
       <Grid container justifyContent="space-evenly" alignItems="center" style={{ height: '100%' }}>
         <GridLayout style={{ background: !!activeFilter && '#f2f3f2', gridTemplateColumns: getGridLayout() }}>
           <FilterButton
+            active={activeFilter === 'where'}
             onClick={() => setActiveFilter('where')}
             ref={(el) => (activeFilter === 'where' ? setSelectedRef(el) : null)}
           >
@@ -146,16 +157,25 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
               placeholder="Search destinations"
               focused
               size="small"
-              value={destination}
-              //   inputRef={(input) => activeFilter === 'where' && input && input.focus()}
+              value={location}
             />
 
-            {activeFilter === 'where' && <LocationDropdown handleSelect={(val) => setDestination(val)} />}
+            {activeFilter === 'where' && (
+              <React.Fragment>
+                {location !== '' && (
+                  <ClearButton size="small" onClick={() => setLocation('')}>
+                    <Close fontSize="small" />
+                  </ClearButton>
+                )}
+                <LocationDropdown selected={location} onLocationSelect={handleLocationSelect} />
+              </React.Fragment>
+            )}
           </FilterButton>
 
           <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
 
           <FilterButton
+            active={activeFilter === 'checkin'}
             onClick={() => setActiveFilter('checkin')}
             ref={(el) => (activeFilter === 'checkin' ? setSelectedRef(el) : null)}
           >
