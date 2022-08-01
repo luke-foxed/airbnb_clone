@@ -1,12 +1,26 @@
 import PropTypes from 'prop-types'
 import { Search } from '@mui/icons-material'
-import { Button, Divider, Grid, IconButton, Paper, styled, TextField, Typography } from '@mui/material'
+import {
+  Button,
+  Divider,
+  Grid,
+  IconButton,
+  Menu,
+  MenuItem,
+  Modal,
+  Paper,
+  Popover,
+  styled,
+  TextField,
+  Typography,
+} from '@mui/material'
 import theme from '../../lib/theme'
 import { Fragment } from 'react'
 import { useRef } from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import useOutsideClick from '../../lib/hooks/use_outside_click'
+import { DateDropdown, LocationDropdown } from './expanded_dropdowns'
 
 const SEARCH_BUTTON_GRADIENT =
   'linear-gradient(90deg, rgb(230,30,77) 0%, rgb(227,28,95) 50%, rgb(215,4,102) 67.5%, rgb(209,29,96) 100%)'
@@ -87,7 +101,10 @@ const SearchButton = styled(IconButton)(({ theme, expanded }) => ({
 
 const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
   const [activeFilter, setActiveFilter] = useState(currentFilter)
-  const selectedFilterRef = useRef(null)
+  const [destination, setDestination] = useState(null)
+  const [dates, setDates] = useState(null)
+  const [guests, setGuests] = useState(null)
+  const [selectedRef, setSelectedRef] = useState(null)
 
   const getGridLayout = () => {
     let gridTemplateColumns = ''
@@ -99,18 +116,29 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
     return gridTemplateColumns
   }
 
-  useOutsideClick(selectedFilterRef, () => {
+  useOutsideClick({ current: selectedRef }, (e) => {
     setActiveFilter(null)
   })
+
+  useEffect(() => {
+    if (selectedRef) {
+      const input = selectedRef.querySelector('input')
+      console.log('INPUT', input)
+      if (input) {
+        input.focus()
+      }
+    }
+  }, [selectedRef])
+
+  console.log('SELECTED', selectedRef)
 
   return (
     <FiltersContainer>
       <Grid container justifyContent="space-evenly" alignItems="center" style={{ height: '100%' }}>
         <GridLayout style={{ background: !!activeFilter && '#f2f3f2', gridTemplateColumns: getGridLayout() }}>
           <FilterButton
-            role="button"
             onClick={() => setActiveFilter('where')}
-            ref={activeFilter === 'where' ? selectedFilterRef : null}
+            ref={(el) => (activeFilter === 'where' ? setSelectedRef(el) : null)}
           >
             <StyledFilterInput
               variant="standard"
@@ -118,15 +146,18 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
               placeholder="Search destinations"
               focused
               size="small"
-              inputRef={(input) => activeFilter === 'where' && input && input.focus()}
+              value={destination}
+              //   inputRef={(input) => activeFilter === 'where' && input && input.focus()}
             />
+
+            {activeFilter === 'where' && <LocationDropdown handleSelect={(val) => setDestination(val)} />}
           </FilterButton>
 
           <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
 
           <FilterButton
             onClick={() => setActiveFilter('checkin')}
-            ref={activeFilter === 'checkin' ? selectedFilterRef : null}
+            ref={(el) => (activeFilter === 'checkin' ? setSelectedRef(el) : null)}
           >
             <StyledFilterInput
               variant="standard"
@@ -136,6 +167,8 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
               size="small"
               inputRef={(input) => activeFilter === 'checkin' && input && input.focus()}
             />
+
+            {activeFilter === 'checkin' && <DateDropdown />}
           </FilterButton>
 
           <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
@@ -144,7 +177,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
             <Fragment>
               <FilterButton
                 onClick={() => setActiveFilter('who')}
-                ref={activeFilter === 'who' ? selectedFilterRef : null}
+                ref={(el) => (activeFilter === 'who' ? setSelectedRef(el) : null)}
               >
                 <StyledFilterInput
                   variant="standard"
@@ -166,7 +199,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
 
           <FilterButton
             onClick={() => setActiveFilter('checkout')}
-            ref={activeFilter === 'checkout' ? selectedFilterRef : null}
+            ref={(el) => (activeFilter === 'checkout' ? setSelectedRef(el) : null)}
           >
             <StyledFilterInput
               variant="standard"
