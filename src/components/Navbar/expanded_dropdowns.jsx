@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { ButtonBase, Grid, styled, Typography } from '@mui/material'
 import Image from 'next/image'
+import ReactDatePicker from 'react-datepicker'
+import "react-datepicker/dist/react-datepicker.css";
+
 
 const REGIONS = [
   { name: "I'm flexible", image: '/navbar/world.png' },
@@ -36,14 +39,6 @@ const ImageButton = styled(ButtonBase, { shouldForwardProp: (props) => props !==
   },
 }))
 
-export const DateDropdown = () => {
-  return (
-    <DropdownContainer width="850px" left="300px">
-      Nice
-    </DropdownContainer>
-  )
-}
-
 export const LocationDropdown = ({ selected, onLocationSelect }) => {
   return (
     <DropdownContainer width="490px" left="20px">
@@ -64,6 +59,33 @@ export const LocationDropdown = ({ selected, onLocationSelect }) => {
           </Grid>
         ))}
       </Grid>
+    </DropdownContainer>
+  )
+}
+
+export const DatesDropdown = ({}) => {
+  const [startDate, setStartDate] = useState(new Date())
+  const [endDate, setEndDate] = useState(null)
+
+  const handleChangeDates = (dates) => {
+    const [start, end] = dates
+    setStartDate(start)
+    setEndDate(end)
+  }
+
+  return (
+    <DropdownContainer width="850px" left="300px">
+      <ReactDatePicker
+        onFocus={(e) => console.log('e', e)}
+        focusSelectedMonth={false}
+        startDate={startDate}
+        endDate={endDate}
+        monthsShown={2}
+        selectsRange
+        inline
+        shouldCloseOnSelect={false}
+        onChange={handleChangeDates}
+      />
     </DropdownContainer>
   )
 }

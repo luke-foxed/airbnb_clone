@@ -20,7 +20,7 @@ import { useRef } from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import useOutsideClick from '../../lib/hooks/use_outside_click'
-import { DateDropdown, LocationDropdown } from './expanded_dropdowns'
+import { DateDropdown, DatesDropdown, LocationDropdown } from './expanded_dropdowns'
 
 const SEARCH_BUTTON_GRADIENT =
   'linear-gradient(90deg, rgb(230,30,77) 0%, rgb(227,28,95) 50%, rgb(215,4,102) 67.5%, rgb(209,29,96) 100%)'
@@ -124,6 +124,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
   }
 
   useOutsideClick({ current: selectedRef }, (e) => {
+    console.log('NULLING')
     setActiveFilter(null)
   })
 
@@ -139,6 +140,8 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
     setActiveFilter('checkin')
     setLocation(val)
   }
+
+  console.log('ACTIVE', activeFilter)
 
   return (
     <FiltersContainer>
@@ -168,6 +171,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
                 <LocationDropdown selected={location} onLocationSelect={handleLocationSelect} />
               </Fragment>
             )}
+
           </FilterButton>
 
           <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
@@ -186,7 +190,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
               inputRef={(input) => activeFilter === 'checkin' && input && input.focus()}
             />
 
-            {activeFilter === 'checkin' && <DateDropdown />}
+            {activeFilter === 'checkin' && <DatesDropdown />}
           </FilterButton>
 
           <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
