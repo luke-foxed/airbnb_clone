@@ -25,6 +25,7 @@
     "next": "12.2.0",
     "prop-types": "^15.8.1",
     "react": "18.2.0",
+    "react-datepicker": "^4.8.0",
     "react-dom": "18.2.0",
     "react-spring": "^9.5.0",
     "react-transition-group": "^4.4.2"

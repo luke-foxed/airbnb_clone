@@ -161,14 +161,14 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
             />
 
             {activeFilter === 'where' && (
-              <React.Fragment>
+              <Fragment>
                 {location !== '' && (
                   <ClearButton size="small" onClick={() => setLocation('')}>
                     <Close fontSize="small" />
                   </ClearButton>
                 )}
                 <LocationDropdown selected={location} onLocationSelect={handleLocationSelect} />
-              </React.Fragment>
+              </Fragment>
             )}
           </FilterButton>
 
