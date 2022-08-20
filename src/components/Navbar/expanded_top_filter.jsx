@@ -140,8 +140,6 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
     setLocation(val)
   }
 
-  console.log('active filetr', activeFilter)
-
   return (
     <FiltersContainer>
       <Grid container justifyContent="space-evenly" alignItems="center" style={{ height: '100%' }}>
@@ -161,14 +159,14 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
             />
 
             {activeFilter === 'where' && (
-              <React.Fragment>
+              <Fragment>
                 {location !== '' && (
                   <ClearButton size="small" onClick={() => setLocation('')}>
                     <Close fontSize="small" />
                   </ClearButton>
                 )}
                 <LocationDropdown selected={location} onLocationSelect={handleLocationSelect} />
-              </React.Fragment>
+              </Fragment>
             )}
           </FilterButton>
 
