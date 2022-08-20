@@ -124,6 +124,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
   }
 
   useOutsideClick({ current: selectedRef }, (e) => {
+    console.log('NULLING')
     setActiveFilter(null)
   })
 
@@ -140,7 +141,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
     setLocation(val)
   }
 
-  console.log('active filetr', activeFilter)
+  console.log('ACTIVE', activeFilter)
 
   return (
     <FiltersContainer>

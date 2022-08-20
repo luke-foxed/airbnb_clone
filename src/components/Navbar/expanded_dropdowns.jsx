@@ -42,9 +42,9 @@ const ImageButton = styled(ButtonBase, { shouldForwardProp: (props) => props !==
 
 const ACTIVE_DATE_STYLES = {
   zIndex: 10,
-  backgroundColor: '#000',
+  backgroundColor: '#000 !important',
   borderRadius: '200px !important',
-  color: '#fff',
+  color: '#fff !important',
 }
 
 const DatePickerContainer = styled('div')({
@@ -56,26 +56,20 @@ const DatePickerContainer = styled('div')({
   '& .react-datepicker': {
     border: 'none',
 
-    '& .react-datepicker__day-name': {
+    '&__day-name': {
       width: '47px',
     },
 
-    '& .react-datepicker__day--outside-month': {
-      pointerEvents: 'none',
-      cursor: 'default',
-      opacity: 0.4,
-    },
-
-    '& .react-datepicker__week': {
+    '&__week': {
       display: 'flex',
     },
 
-    '& .react-datepicker__day--today': {
+    '&__day--today': {
       backgroundColor: 'transparent',
       color: '#000',
     },
 
-    '& .react-datepicker__day': {
+    '&__day': {
       width: '47px',
       height: '47px',
       display: 'inline-flex',
@@ -85,17 +79,15 @@ const DatePickerContainer = styled('div')({
       ':hover': {
         backgroundColor: 'transparent',
         border: '1px solid #000',
+        borderRadius: '200px',
         color: '#000',
       },
       '&--selected': {
-        ':hover': {
-          backgroundColor: '#000 !important',
-        },
         ...ACTIVE_DATE_STYLES,
       },
     },
 
-    '& .react-datepicker__day--in-range, .react-datepicker__day--in-selecting-range': {
+    '&__day--in-range, &__day--in-selecting-range': {
       borderRadius: '0 !important',
       color: '#000',
       zIndex: 9,
@@ -110,14 +102,14 @@ const DatePickerContainer = styled('div')({
       },
     },
 
-    '& .react-datepicker__day--selecting-range-start': {
+    '&__day--selecting-range-start': {
       ...ACTIVE_DATE_STYLES,
       '&::before': {
         content: 'none',
       },
     },
 
-    '& .react-datepicker__day--range-start, .react-datepicker__day--range-end': {
+    '&__day--range-start, &__day--range-end': {
       ...ACTIVE_DATE_STYLES,
       ':hover': {
         backgroundColor: '#000',
@@ -127,12 +119,21 @@ const DatePickerContainer = styled('div')({
         content: 'none',
       },
     },
-    '& .react-datepicker__day--range-start': {
+    '&__day--range-start': {
       zIndex: 10,
     },
 
-    '& .react-datepicker__day--keyboard-selected': {
+    '&__day--keyboard-selected': {
       ...ACTIVE_DATE_STYLES,
+    },
+
+    '&__day--outside-month': {
+      pointerEvents: 'none',
+      cursor: 'default !important',
+      backgroundColor: '#fff !important',
+      '&::before': {
+        content: 'none',
+      },
     },
   },
 
