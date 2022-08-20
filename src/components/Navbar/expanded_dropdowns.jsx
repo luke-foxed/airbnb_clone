@@ -56,7 +56,23 @@ const DatePickerContainer = styled('div')({
   '& .react-datepicker': {
     border: 'none',
 
+    '&__navigation': {
+      padding: 'revert',
+    },
+
+    '&__header--custom': {
+      backgroundColor: 'transparent',
+    },
+
+    '&__header': {
+      border: 'none',
+    },
+    '&__day-names': {
+      marginTop: '10px',
+    },
+
     '&__day-name': {
+      color: '#777',
       width: '47px',
     },
 
@@ -136,37 +152,6 @@ const DatePickerContainer = styled('div')({
       },
     },
   },
-
-  //   .react-datepicker {
-  //   font-size: 1em;
-  // }
-  // .react-datepicker__header {
-  //   padding-top: 0.8em;
-  // }
-  // .react-datepicker__month {
-  //   margin: 0.4em 1em;
-  // }
-  // .react-datepicker__day-name, .react-datepicker__day {
-  //   width: 1.9em;
-  //   line-height: 1.9em;
-  //   margin: 0.166em;
-  // }
-  // .react-datepicker__current-month {
-  //   font-size: 1em;
-  // }
-  // .react-datepicker__navigation {
-  //   top: 1em;
-  //   line-height: 1.7em;
-  //   border: 0.45em solid transparent;
-  // }
-  // .react-datepicker__navigation--previous {
-  //   border-right-color: #ccc;
-  //   left: 1em;
-  // }
-  // .react-datepicker__navigation--next {
-  //   border-left-color: #ccc;
-  //   right: 1em;
-  // }
 })
 
 export const DateDropdown = ({ selected, onDatesSelect }) => {
@@ -180,9 +165,7 @@ export const DateDropdown = ({ selected, onDatesSelect }) => {
           selectsRange={true}
           startDate={startDate}
           endDate={endDate}
-          onChange={(update) => {
-            setDateRange(update)
-          }}
+          onChange={(update) => setDateRange(update)}
           minDate={new Date()}
           inline
           renderCustomHeader={({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
@@ -215,6 +198,7 @@ export const DateDropdown = ({ selected, onDatesSelect }) => {
               </button>
             </div>
           )}
+          useWeekdaysShort={true}
           monthsShown={2}
         />
       </DatePickerContainer>
