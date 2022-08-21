@@ -109,9 +109,13 @@ const ClearButton = styled(IconButton, { shouldForwardProp: (props) => props !==
 const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
   const [activeFilter, setActiveFilter] = useState(currentFilter)
   const [location, setLocation] = useState('')
-  const [dates, setDates] = useState(null)
+  const [dateRange, setDateRange] = useState([null, null])
   const [guests, setGuests] = useState(null)
   const [selectedRef, setSelectedRef] = useState(null)
+
+  const getShortDateString = (date) => {
+    return date ? `${new Date(date).getDate()} ${new Date(date).toLocaleString('en-us', { weekday: 'short' })}` : ''
+  }
 
   const getGridLayout = () => {
     let gridTemplateColumns = ''
@@ -123,8 +127,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
     return gridTemplateColumns
   }
 
-  useOutsideClick({ current: selectedRef }, (e) => {
-    console.log('NULLING')
+  useOutsideClick({ current: selectedRef }, () => {
     setActiveFilter(null)
   })
 
@@ -141,7 +144,14 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
     setLocation(val)
   }
 
-  console.log('ACTIVE', activeFilter)
+  const handleDatesSelect = (dates) => {
+    if (dates[0]) {
+      setActiveFilter('checkout')
+    }
+    setDateRange(dates)
+  }
+
+  console.log('ACtive filter', activeFilter)
 
   return (
     <FiltersContainer>
@@ -181,46 +191,62 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
             ref={(el) => (activeFilter === 'checkin' ? setSelectedRef(el) : null)}
           >
             <StyledFilterInput
+              value={getShortDateString(dateRange[0])}
               variant="standard"
               label="Check In"
               placeholder="Add dates"
               focused
+              InputProps={{ readOnly: true }}
               size="small"
               inputRef={(input) => activeFilter === 'checkin' && input && input.focus()}
             />
 
-            {activeFilter === 'checkin' && <DateDropdown />}
+            {activeFilter === 'checkin' && (
+              <Fragment>
+                {dateRange[0] && (
+                  <ClearButton size="small" onClick={() => setDateRange([null, dateRange[1]])}>
+                    <Close fontSize="small" />
+                  </ClearButton>
+                )}
+                <DateDropdown dateRange={dateRange} onDatesSelect={handleDatesSelect} />
+              </Fragment>
+            )}
           </FilterButton>
 
           <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
 
-          {currentTab === 0 && (
-            <Fragment>
-              <FilterButton
-                onClick={() => setActiveFilter('who')}
-                ref={(el) => (activeFilter === 'who' ? setSelectedRef(el) : null)}
-              >
-                <StyledFilterInput
-                  variant="standard"
-                  label="Check Out"
-                  placeholder="Add dates"
-                  focused
-                  size="small"
-                  inputRef={(input) => activeFilter === 'who' && input && input.focus()}
-                />
-              </FilterButton>
-
-              <Divider
-                orientation="vertical"
-                flexItem
-                style={{ height: '35%', margin: 'auto', borderColor: '#e1e3e1' }}
-              />
-            </Fragment>
-          )}
-
           <FilterButton
+            active={activeFilter === 'checkout'}
             onClick={() => setActiveFilter('checkout')}
             ref={(el) => (activeFilter === 'checkout' ? setSelectedRef(el) : null)}
+          >
+            <StyledFilterInput
+              value={getShortDateString(dateRange[1])}
+              variant="standard"
+              label="Check Out"
+              placeholder="Add dates"
+              focused
+              size="small"
+              inputRef={(input) => activeFilter === 'checkout' && input && input.focus()}
+            />
+
+            {activeFilter === 'checkout' && (
+              <Fragment>
+                {dateRange[1] && (
+                  <ClearButton size="small" onClick={() => setDateRange([dateRange[0], null])}>
+                    <Close fontSize="small" />
+                  </ClearButton>
+                )}
+                <DateDropdown dateRange={dateRange} onDatesSelect={handleDatesSelect} />
+              </Fragment>
+            )}
+          </FilterButton>
+
+          <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e1e3e1' }} />
+
+          <FilterButton
+            onClick={() => setActiveFilter('who')}
+            ref={(el) => (activeFilter === 'who' ? setSelectedRef(el) : null)}
           >
             <StyledFilterInput
               variant="standard"
@@ -228,7 +254,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
               placeholder="Add guests"
               focused
               size="small"
-              inputRef={(input) => activeFilter === 'checkout' && input && input.focus()}
+              inputRef={(input) => activeFilter === 'who' && input && input.focus()}
             />
             <SearchButton size="large" expanded={!!activeFilter}>
               <Search />

@@ -41,7 +41,7 @@ const ImageButton = styled(ButtonBase, { shouldForwardProp: (props) => props !==
 }))
 
 const ACTIVE_DATE_STYLES = {
-  zIndex: 10,
+  zIndex: 2,
   backgroundColor: '#000 !important',
   borderRadius: '200px !important',
   color: '#fff !important',
@@ -55,36 +55,29 @@ const DatePickerContainer = styled('div')({
   alignItems: 'center',
   '& .react-datepicker': {
     border: 'none',
-
     '&__navigation': {
       padding: 'revert',
     },
-
     '&__header--custom': {
       backgroundColor: 'transparent',
     },
-
     '&__header': {
       border: 'none',
     },
     '&__day-names': {
       marginTop: '10px',
     },
-
     '&__day-name': {
       color: '#777',
       width: '47px',
     },
-
     '&__week': {
       display: 'flex',
     },
-
     '&__day--today': {
       backgroundColor: 'transparent',
       color: '#000',
     },
-
     '&__day': {
       width: '47px',
       height: '47px',
@@ -102,29 +95,26 @@ const DatePickerContainer = styled('div')({
         ...ACTIVE_DATE_STYLES,
       },
     },
-
     '&__day--in-range, &__day--in-selecting-range': {
       borderRadius: '0 !important',
       color: '#000',
-      zIndex: 9,
+      zIndex: 1,
       '&::before': {
         backgroundColor: '#f6f6f6',
         content: '""',
         position: 'absolute',
         height: 'inherit',
         width: 'inherit',
-        transform: 'scaleX(1.5)',
+        transform: 'scaleX(1.8)',
         zIndex: -1,
       },
     },
-
     '&__day--selecting-range-start': {
       ...ACTIVE_DATE_STYLES,
       '&::before': {
         content: 'none',
       },
     },
-
     '&__day--range-start, &__day--range-end': {
       ...ACTIVE_DATE_STYLES,
       ':hover': {
@@ -136,16 +126,15 @@ const DatePickerContainer = styled('div')({
       },
     },
     '&__day--range-start': {
-      zIndex: 10,
+      zIndex: 2,
     },
-
     '&__day--keyboard-selected': {
       ...ACTIVE_DATE_STYLES,
     },
-
     '&__day--outside-month': {
       pointerEvents: 'none',
       cursor: 'default !important',
+      color: 'transparent !important',
       backgroundColor: '#fff !important',
       '&::before': {
         content: 'none',
@@ -154,20 +143,25 @@ const DatePickerContainer = styled('div')({
   },
 })
 
-export const DateDropdown = ({ selected, onDatesSelect }) => {
-  const [dateRange, setDateRange] = useState([null, null])
+export const DateDropdown = ({ selected, dateRange, onDatesSelect }) => {
   const [startDate, endDate] = dateRange
+
+  console.log(dateRange)
+
   return (
     <DropdownContainer width="850px" left="300px">
       <DatePickerContainer>
         <div>SOME BUTTONS HERE</div>
         <DatePicker
-          selectsRange={true}
+          selectsRange
+          inline
+          useWeekdaysShort
+          monthsShown={2}
+          peekNextMonth={false}
           startDate={startDate}
           endDate={endDate}
-          onChange={(update) => setDateRange(update)}
+          onChange={onDatesSelect}
           minDate={new Date()}
-          inline
           renderCustomHeader={({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
             <div>
               <button
@@ -198,8 +192,6 @@ export const DateDropdown = ({ selected, onDatesSelect }) => {
               </button>
             </div>
           )}
-          useWeekdaysShort={true}
-          monthsShown={2}
         />
       </DatePickerContainer>
     </DropdownContainer>
