@@ -146,10 +146,10 @@ const DatePickerContainer = styled('div')({
 export const DateDropdown = ({ selected, dateRange, onDatesSelect }) => {
   const [startDate, endDate] = dateRange
 
-  console.log(dateRange)
-
+  // prevent propogation so 'checkin' isn't refocused when this dropdown is clicked
+  // while 'checkout' is active
   return (
-    <DropdownContainer width="850px" left="300px">
+    <DropdownContainer width="850px" left="300px" onClick={(e) => e.stopPropagation()}>
       <DatePickerContainer>
         <div>SOME BUTTONS HERE</div>
         <DatePicker
@@ -160,7 +160,7 @@ export const DateDropdown = ({ selected, dateRange, onDatesSelect }) => {
           peekNextMonth={false}
           startDate={startDate}
           endDate={endDate}
-          onChange={onDatesSelect}
+          onSelect={onDatesSelect}
           minDate={new Date()}
           renderCustomHeader={({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
             <div>

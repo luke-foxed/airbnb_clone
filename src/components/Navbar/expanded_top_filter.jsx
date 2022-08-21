@@ -144,11 +144,17 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
     setLocation(val)
   }
 
-  const handleDatesSelect = (dates) => {
-    if (dates[0]) {
-      setActiveFilter('checkout')
+  const handleDatesSelect = (date) => {
+    if (activeFilter === 'checkin') {
+      setDateRange([date, dateRange[1]])
+      if (!dateRange[1]) {
+        setActiveFilter('checkout')
+      }
     }
-    setDateRange(dates)
+
+    if (activeFilter === 'checkout') {
+      setDateRange([dateRange[0], date])
+    }
   }
 
   console.log('ACtive filter', activeFilter)
@@ -201,7 +207,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
               inputRef={(input) => activeFilter === 'checkin' && input && input.focus()}
             />
 
-            {activeFilter === 'checkin' && (
+            {(activeFilter === 'checkin' || activeFilter === 'checkout') && (
               <Fragment>
                 {dateRange[0] && (
                   <ClearButton size="small" onClick={() => setDateRange([null, dateRange[1]])}>
@@ -229,16 +235,10 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
               size="small"
               inputRef={(input) => activeFilter === 'checkout' && input && input.focus()}
             />
-
-            {activeFilter === 'checkout' && (
-              <Fragment>
-                {dateRange[1] && (
-                  <ClearButton size="small" onClick={() => setDateRange([dateRange[0], null])}>
-                    <Close fontSize="small" />
-                  </ClearButton>
-                )}
-                <DateDropdown dateRange={dateRange} onDatesSelect={handleDatesSelect} />
-              </Fragment>
+            {activeFilter === 'checkout' && dateRange[1] && (
+              <ClearButton size="small" onClick={() => setDateRange([dateRange[0], null])}>
+                <Close fontSize="small" />
+              </ClearButton>
             )}
           </FilterButton>
 
