@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ButtonBase, Grid, styled, Typography } from '@mui/material'
+import { Button, ButtonBase, Grid, styled, Typography } from '@mui/material'
 import Image from 'next/image'
 import DatePicker from 'react-datepicker'
 
@@ -14,17 +14,17 @@ const REGIONS = [
   { name: 'Southeast Asia', image: '/navbar/southeastasia.png' },
 ]
 
-const DropdownContainer = styled('div')(({ width, left }) => ({
+const DropdownContainer = styled('div')(({ width, left, height }) => ({
   background: '#FFF',
   position: 'absolute',
   cursor: 'default',
   top: '155px',
   marginLeft: `-${left}`,
-  height: '470px',
   borderRadius: '30px',
   boxShadow: '0px 0px 20px 3px rgba(0,0,0,0.2)',
   padding: '45px',
   width,
+  height,
 }))
 
 const ImageButton = styled(ButtonBase, { shouldForwardProp: (props) => props !== 'active' })(({ active }) => ({
@@ -46,6 +46,24 @@ const ACTIVE_DATE_STYLES = {
   borderRadius: '200px !important',
   color: '#fff !important',
 }
+
+const DatesToggle = styled(Grid)({
+  marginBottom: '10px',
+  backgroundColor: '#e5e6e5',
+  height: '44px',
+  display: 'flex',
+  width: '303px',
+  borderRadius: '200px',
+})
+
+const ToggleButton = styled(Button)({
+  backgroundColor: '#fff',
+  color: '#000',
+  height: '36px',
+  borderRadius: '200px',
+  width: '145px',
+  justifyContent: 'center !important',
+})
 
 const DatePickerContainer = styled('div')({
   width: '100%',
@@ -146,12 +164,42 @@ const DatePickerContainer = styled('div')({
 export const DateDropdown = ({ selected, dateRange, onDatesSelect }) => {
   const [startDate, endDate] = dateRange
 
+  const renderHeader = ({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
+    <div>
+      <button
+        aria-label="Previous Month"
+        className={'react-datepicker__navigation react-datepicker__navigation--previous'}
+        style={customHeaderCount === 1 ? { visibility: 'hidden' } : null}
+        onClick={decreaseMonth}
+      >
+        <span className={'react-datepicker__navigation-icon react-datepicker__navigation-icon--previous'}>{'<'}</span>
+      </button>
+      <span className="react-datepicker__current-month">
+        {monthDate.toLocaleString('en-US', {
+          month: 'long',
+          year: 'numeric',
+        })}
+      </span>
+      <button
+        aria-label="Next Month"
+        className={'react-datepicker__navigation react-datepicker__navigation--next'}
+        style={customHeaderCount === 0 ? { visibility: 'hidden' } : null}
+        onClick={increaseMonth}
+      >
+        <span className={'react-datepicker__navigation-icon react-datepicker__navigation-icon--next'}>{'>'}</span>
+      </button>
+    </div>
+  )
+
   // prevent propogation so 'checkin' isn't refocused when this dropdown is clicked
   // while 'checkout' is active
   return (
-    <DropdownContainer width="850px" left="300px" onClick={(e) => e.stopPropagation()}>
+    <DropdownContainer width="850px" left="300px" height="511px" onClick={(e) => e.stopPropagation()}>
       <DatePickerContainer>
-        <div>SOME BUTTONS HERE</div>
+        <DatesToggle direction="row" alignItems="center" justifyContent="space-evenly">
+          <ToggleButton>Choose Dates</ToggleButton>
+          <ToggleButton>I'm Flexible</ToggleButton>
+        </DatesToggle>
         <DatePicker
           selectsRange
           inline
@@ -162,36 +210,7 @@ export const DateDropdown = ({ selected, dateRange, onDatesSelect }) => {
           endDate={endDate}
           onSelect={onDatesSelect}
           minDate={new Date()}
-          renderCustomHeader={({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
-            <div>
-              <button
-                aria-label="Previous Month"
-                className={'react-datepicker__navigation react-datepicker__navigation--previous'}
-                style={customHeaderCount === 1 ? { visibility: 'hidden' } : null}
-                onClick={decreaseMonth}
-              >
-                <span className={'react-datepicker__navigation-icon react-datepicker__navigation-icon--previous'}>
-                  {'<'}
-                </span>
-              </button>
-              <span className="react-datepicker__current-month">
-                {monthDate.toLocaleString('en-US', {
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </span>
-              <button
-                aria-label="Next Month"
-                className={'react-datepicker__navigation react-datepicker__navigation--next'}
-                style={customHeaderCount === 0 ? { visibility: 'hidden' } : null}
-                onClick={increaseMonth}
-              >
-                <span className={'react-datepicker__navigation-icon react-datepicker__navigation-icon--next'}>
-                  {'>'}
-                </span>
-              </button>
-            </div>
-          )}
+          renderCustomHeader={renderHeader}
         />
       </DatePickerContainer>
     </DropdownContainer>
@@ -200,7 +219,7 @@ export const DateDropdown = ({ selected, dateRange, onDatesSelect }) => {
 
 export const LocationDropdown = ({ selected, onLocationSelect }) => {
   return (
-    <DropdownContainer width="490px" left="20px">
+    <DropdownContainer width="490px" left="20px" height="470px">
       <Typography style={{ fontSize: '13px', fontWeight: 700 }}>Search by region</Typography>
       <Grid container justifyContent="space-between" rowGap={4} style={{ marginTop: '20px' }}>
         {REGIONS.map(({ name, image }) => (
