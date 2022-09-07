@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
-import { Button, ButtonBase, Grid, styled, Typography } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ButtonBase, Grid, styled, ToggleButtonGroup, ToggleButton, Typography } from '@mui/material'
 import Image from 'next/image'
 import DatePicker from 'react-datepicker'
 
 import 'react-datepicker/dist/react-datepicker.css'
+import { useState } from 'react'
+import { DATE_FORMATS } from './constants'
 
 const REGIONS = [
   { name: "I'm flexible", image: '/navbar/world.png' },
@@ -47,22 +49,30 @@ const ACTIVE_DATE_STYLES = {
   color: '#fff !important',
 }
 
-const DatesToggle = styled(Grid)({
+const ToggleGroupContainer = styled(ToggleButtonGroup)({
   marginBottom: '10px',
   backgroundColor: '#e5e6e5',
   height: '44px',
   display: 'flex',
-  width: '303px',
+  width: '308px',
   borderRadius: '200px',
+  '& .Mui-selected': {
+    backgroundColor: '#fff !important',
+  },
 })
 
-const ToggleButton = styled(Button)({
-  backgroundColor: '#fff',
+const DateToggleButton = styled(ToggleButton)({
+  margin: 'auto',
+  backgroundColor: 'transparent',
   color: '#000',
   height: '36px',
-  borderRadius: '200px',
-  width: '145px',
+  border: 'none',
+  borderRadius: '200px !important',
+  width: '150px',
   justifyContent: 'center !important',
+  ':hover': {
+    backgroundColor: '#fff',
+  },
 })
 
 const DatePickerContainer = styled('div')({
@@ -161,18 +171,24 @@ const DatePickerContainer = styled('div')({
   },
 })
 
-export const DateDropdown = ({ selected, dateRange, onDatesSelect }) => {
+export const DateDropdown = ({ dateRange, onDatesSelect }) => {
+  const [dateFormat, setDateFormat] = useState(DATE_FORMATS[0])
   const [startDate, endDate] = dateRange
+
+  const handleChangeDateFormat = (event, format) => {
+    setDateFormat(format)
+  }
 
   const renderHeader = ({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
     <div>
       <button
+        type="button"
         aria-label="Previous Month"
-        className={'react-datepicker__navigation react-datepicker__navigation--previous'}
+        className="react-datepicker__navigation react-datepicker__navigation--previous"
         style={customHeaderCount === 1 ? { visibility: 'hidden' } : null}
         onClick={decreaseMonth}
       >
-        <span className={'react-datepicker__navigation-icon react-datepicker__navigation-icon--previous'}>{'<'}</span>
+        <span className="react-datepicker__navigation-icon react-datepicker__navigation-icon--previous">{'<'}</span>
       </button>
       <span className="react-datepicker__current-month">
         {monthDate.toLocaleString('en-US', {
@@ -181,12 +197,13 @@ export const DateDropdown = ({ selected, dateRange, onDatesSelect }) => {
         })}
       </span>
       <button
+        type="button"
         aria-label="Next Month"
-        className={'react-datepicker__navigation react-datepicker__navigation--next'}
+        className="react-datepicker__navigation react-datepicker__navigation--next"
         style={customHeaderCount === 0 ? { visibility: 'hidden' } : null}
         onClick={increaseMonth}
       >
-        <span className={'react-datepicker__navigation-icon react-datepicker__navigation-icon--next'}>{'>'}</span>
+        <span className="react-datepicker__navigation-icon react-datepicker__navigation-icon--next">{'>'}</span>
       </button>
     </div>
   )
@@ -196,10 +213,11 @@ export const DateDropdown = ({ selected, dateRange, onDatesSelect }) => {
   return (
     <DropdownContainer width="850px" left="300px" height="511px" onClick={(e) => e.stopPropagation()}>
       <DatePickerContainer>
-        <DatesToggle direction="row" alignItems="center" justifyContent="space-evenly">
-          <ToggleButton>Choose Dates</ToggleButton>
-          <ToggleButton>I'm Flexible</ToggleButton>
-        </DatesToggle>
+        <ToggleGroupContainer value={dateFormat} exclusive onChange={handleChangeDateFormat}>
+          <DateToggleButton value="calendar">Choose Dates</DateToggleButton>
+          <DateToggleButton value="flexible">I&apos;m Flexible</DateToggleButton>
+        </ToggleGroupContainer>
+
         <DatePicker
           selectsRange
           inline
@@ -217,26 +235,34 @@ export const DateDropdown = ({ selected, dateRange, onDatesSelect }) => {
   )
 }
 
-export const LocationDropdown = ({ selected, onLocationSelect }) => {
-  return (
-    <DropdownContainer width="490px" left="20px" height="470px">
-      <Typography style={{ fontSize: '13px', fontWeight: 700 }}>Search by region</Typography>
-      <Grid container justifyContent="space-between" rowGap={4} style={{ marginTop: '20px' }}>
-        {REGIONS.map(({ name, image }) => (
-          <Grid item xs={4} textAlign="start">
-            <ImageButton
-              onClick={(e) => {
-                e.stopPropagation()
-                onLocationSelect(name)
-              }}
-              active={selected === name}
-            >
-              <Image width={120} height={120} src={image} />
-            </ImageButton>
-            <Typography style={{ fontSize: '13px', marginLeft: '5px' }}>{name}</Typography>
-          </Grid>
-        ))}
-      </Grid>
-    </DropdownContainer>
-  )
+DateDropdown.propTypes = {
+  dateRange: PropTypes.arrayOf(PropTypes.number).isRequired,
+  onDatesSelect: PropTypes.func.isRequired,
+}
+
+export const LocationDropdown = ({ selected, onLocationSelect }) => (
+  <DropdownContainer width="490px" left="20px" height="470px">
+    <Typography style={{ fontSize: '13px', fontWeight: 700 }}>Search by region</Typography>
+    <Grid container justifyContent="space-between" rowGap={4} style={{ marginTop: '20px' }}>
+      {REGIONS.map(({ name, image }) => (
+        <Grid item xs={4} textAlign="start">
+          <ImageButton
+            onClick={(e) => {
+              e.stopPropagation()
+              onLocationSelect(name)
+            }}
+            active={selected === name}
+          >
+            <Image width={120} height={120} src={image} />
+          </ImageButton>
+          <Typography style={{ fontSize: '13px', marginLeft: '5px' }}>{name}</Typography>
+        </Grid>
+      ))}
+    </Grid>
+  </DropdownContainer>
+)
+
+LocationDropdown.propTypes = {
+  onLocationSelect: PropTypes.func.isRequired,
+  selected: PropTypes.bool.isRequired,
 }

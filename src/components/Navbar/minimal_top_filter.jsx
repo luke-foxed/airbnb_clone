@@ -1,7 +1,8 @@
-import PropTypes from 'prop-types'
 import { Search } from '@mui/icons-material'
 import { Button, Divider, Grid, IconButton, Paper, styled } from '@mui/material'
+import { useContext } from 'react'
 import theme from '../../lib/theme'
+import { NavbarContext } from './constants'
 
 const FiltersContainer = styled(Paper)({
   background: '#FFF',
@@ -29,37 +30,36 @@ const GridLayout = styled('div')({
   },
 })
 
-const MinimalTopFilters = ({ onFilterClick }) => (
-  <FiltersContainer>
-    <Grid container justifyContent="space-evenly" alignItems="center" style={{ height: '100%' }}>
-      <GridLayout>
-        <Button style={{ color: '#333' }} onClick={() => onFilterClick('where')}>
-          Anywhere
-        </Button>
-
-        <Divider orientation="vertical" flexItem />
-
-        <Button style={{ color: '#333' }} onClick={() => onFilterClick('checkin')}>
-          Any Week
-        </Button>
-
-        <Divider orientation="vertical" flexItem />
-
-        <div>
-          <Button style={{ color: '#555', fontWeight: '400' }} onClick={() => onFilterClick('who')}>
-            Add Guests
+const MinimalTopFilters = () => {
+  const { onChangeFilter } = useContext(NavbarContext)
+  return (
+    <FiltersContainer>
+      <Grid container justifyContent="space-evenly" alignItems="center" style={{ height: '100%' }}>
+        <GridLayout>
+          <Button style={{ color: '#333' }} onClick={() => onChangeFilter('where')}>
+            Anywhere
           </Button>
-          <IconButton style={{ background: theme.palette.primary.main, color: '#FFF' }}>
-            <Search fontSize="small" />
-          </IconButton>
-        </div>
-      </GridLayout>
-    </Grid>
-  </FiltersContainer>
-)
 
-MinimalTopFilters.propTypes = {
-  onFilterClick: PropTypes.func.isRequired,
+          <Divider orientation="vertical" flexItem />
+
+          <Button style={{ color: '#333' }} onClick={() => onChangeFilter('checkin')}>
+            Any Week
+          </Button>
+
+          <Divider orientation="vertical" flexItem />
+
+          <div>
+            <Button style={{ color: '#555', fontWeight: '400' }} onClick={() => onChangeFilter('who')}>
+              Add Guests
+            </Button>
+            <IconButton style={{ background: theme.palette.primary.main, color: '#FFF' }}>
+              <Search fontSize="small" />
+            </IconButton>
+          </div>
+        </GridLayout>
+      </Grid>
+    </FiltersContainer>
+  )
 }
 
 export default MinimalTopFilters

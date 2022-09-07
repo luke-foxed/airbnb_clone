@@ -1,29 +1,12 @@
-import PropTypes from 'prop-types'
 import { Close, Search } from '@mui/icons-material'
-import {
-  Button,
-  Divider,
-  Grid,
-  IconButton,
-  Menu,
-  MenuItem,
-  Modal,
-  Paper,
-  Popover,
-  styled,
-  TextField,
-  Typography,
-} from '@mui/material'
-import theme from '../../lib/theme'
-import { Fragment } from 'react'
-import { useRef } from 'react'
-import { useState } from 'react'
-import { useEffect } from 'react'
+import { Divider, Grid, IconButton, Paper, styled, TextField } from '@mui/material'
+import { Fragment, useState, useEffect, useContext } from 'react'
 import useOutsideClick from '../../lib/hooks/use_outside_click'
 import { DateDropdown, LocationDropdown } from './expanded_dropdowns'
+import { NavbarContext } from './constants'
 
-const SEARCH_BUTTON_GRADIENT =
-  'linear-gradient(90deg, rgb(230,30,77) 0%, rgb(227,28,95) 50%, rgb(215,4,102) 67.5%, rgb(209,29,96) 100%)'
+// eslint-disable-next-line max-len
+const SEARCH_BUTTON_GRADIENT = 'linear-gradient(90deg, rgb(230,30,77) 0%, rgb(227,28,95) 50%, rgb(215,4,102) 67.5%, rgb(209,29,96) 100%)'
 
 const FiltersContainer = styled(Paper)({
   background: '#FFF',
@@ -63,6 +46,7 @@ const FilterButton = styled('div', { shouldForwardProp: (props) => props !== 'ac
 }))
 
 const StyledFilterInput = styled(TextField)({
+  width: '100%',
   marginTop: '8px',
   '& .MuiInputLabel-root': {
     color: '#000 !important',
@@ -96,7 +80,7 @@ const SearchButton = styled(IconButton, { shouldForwardProp: (props) => props !=
     ':hover': {
       background: SEARCH_BUTTON_GRADIENT,
     },
-  })
+  }),
 )
 
 const ClearButton = styled(IconButton, { shouldForwardProp: (props) => props !== 'expanded' })({
@@ -106,20 +90,23 @@ const ClearButton = styled(IconButton, { shouldForwardProp: (props) => props !==
   },
 })
 
-const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
-  const [activeFilter, setActiveFilter] = useState(currentFilter)
+const ExpandedTopFilter = () => {
+  const { activeTab, activeFilter, onChangeFilter } = useContext(NavbarContext)
+
   const [location, setLocation] = useState('')
   const [dateRange, setDateRange] = useState([null, null])
-  const [guests, setGuests] = useState(null)
   const [selectedRef, setSelectedRef] = useState(null)
 
   const getShortDateString = (date) => {
-    return date ? `${new Date(date).getDate()} ${new Date(date).toLocaleString('en-us', { weekday: 'short' })}` : ''
+    const shortDate = date
+      ? `${new Date(date).getDate()} ${new Date(date).toLocaleString('en-us', { weekday: 'short' })}`
+      : ''
+    return shortDate
   }
 
   const getGridLayout = () => {
     let gridTemplateColumns = ''
-    if (currentTab === 0) {
+    if (activeTab === 0) {
       gridTemplateColumns = `2fr 2px 1fr 2px 1fr 2px ${activeFilter ? '2fr' : '1.5fr'}`
     } else {
       gridTemplateColumns = `2fr 2px 1.5fr 2px ${activeFilter ? '2fr' : '1.5fr'}`
@@ -128,7 +115,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
   }
 
   useOutsideClick({ current: selectedRef }, () => {
-    setActiveFilter(null)
+    onChangeFilter('')
   })
 
   // focus input if the button surrounding the input us clicked also
@@ -140,7 +127,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
   }, [selectedRef])
 
   const handleLocationSelect = (val) => {
-    setActiveFilter('checkin')
+    onChangeFilter('checkin')
     setLocation(val)
   }
 
@@ -148,7 +135,7 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
     if (activeFilter === 'checkin') {
       setDateRange([date, dateRange[1]])
       if (!dateRange[1]) {
-        setActiveFilter('checkout')
+        onChangeFilter('checkout')
       }
     }
 
@@ -157,15 +144,13 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
     }
   }
 
-  console.log('ACtive filter', activeFilter)
-
   return (
     <FiltersContainer>
       <Grid container justifyContent="space-evenly" alignItems="center" style={{ height: '100%' }}>
         <GridLayout style={{ background: !!activeFilter && '#f2f3f2', gridTemplateColumns: getGridLayout() }}>
           <FilterButton
             active={activeFilter === 'where'}
-            onClick={() => setActiveFilter('where')}
+            onClick={() => onChangeFilter('where')}
             ref={(el) => (activeFilter === 'where' ? setSelectedRef(el) : null)}
           >
             <StyledFilterInput
@@ -178,74 +163,103 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
             />
 
             {activeFilter === 'where' && (
-              <Fragment>
+              <>
                 {location !== '' && (
                   <ClearButton size="small" onClick={() => setLocation('')}>
                     <Close fontSize="small" />
                   </ClearButton>
                 )}
                 <LocationDropdown selected={location} onLocationSelect={handleLocationSelect} />
-              </Fragment>
+              </>
             )}
           </FilterButton>
 
           <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
 
-          <FilterButton
-            active={activeFilter === 'checkin'}
-            onClick={() => setActiveFilter('checkin')}
-            ref={(el) => (activeFilter === 'checkin' ? setSelectedRef(el) : null)}
-          >
-            <StyledFilterInput
-              value={getShortDateString(dateRange[0])}
-              variant="standard"
-              label="Check In"
-              placeholder="Add dates"
-              focused
-              InputProps={{ readOnly: true }}
-              size="small"
-              inputRef={(input) => activeFilter === 'checkin' && input && input.focus()}
-            />
+          {activeTab === 0 ? (
+            <>
+              <FilterButton
+                active={activeFilter === 'checkin'}
+                onClick={() => onChangeFilter('checkin')}
+                ref={(el) => (activeFilter === 'checkin' ? setSelectedRef(el) : null)}
+              >
+                <StyledFilterInput
+                  value={getShortDateString(dateRange[0])}
+                  variant="standard"
+                  label="Check In"
+                  placeholder="Add dates"
+                  focused
+                  InputProps={{ readOnly: true }}
+                  size="small"
+                  inputRef={(input) => activeFilter === 'checkin' && input && input.focus()}
+                />
 
-            {(activeFilter === 'checkin' || activeFilter === 'checkout') && (
-              <Fragment>
-                {dateRange[0] && (
-                  <ClearButton size="small" onClick={() => setDateRange([null, dateRange[1]])}>
+                {(activeFilter === 'checkin' || activeFilter === 'checkout') && (
+                  <>
+                    {dateRange[0] && (
+                      <ClearButton size="small" onClick={() => setDateRange([null, dateRange[1]])}>
+                        <Close fontSize="small" />
+                      </ClearButton>
+                    )}
+                    <DateDropdown dateRange={dateRange} onDatesSelect={handleDatesSelect} />
+                  </>
+                )}
+              </FilterButton>
+
+              <Divider
+                orientation="vertical"
+                flexItem
+                style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }}
+              />
+
+              <FilterButton
+                active={activeFilter === 'checkout'}
+                onClick={() => onChangeFilter('checkout')}
+                ref={(el) => (activeFilter === 'checkout' ? setSelectedRef(el) : null)}
+              >
+                <StyledFilterInput
+                  value={getShortDateString(dateRange[1])}
+                  variant="standard"
+                  label="Check Out"
+                  placeholder="Add dates"
+                  focused
+                  size="small"
+                  inputRef={(input) => activeFilter === 'checkout' && input && input.focus()}
+                />
+                {activeFilter === 'checkout' && dateRange[1] && (
+                  <ClearButton size="small" onClick={() => setDateRange([dateRange[0], null])}>
                     <Close fontSize="small" />
                   </ClearButton>
                 )}
-                <DateDropdown dateRange={dateRange} onDatesSelect={handleDatesSelect} />
-              </Fragment>
-            )}
-          </FilterButton>
-
-          <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
-
-          <FilterButton
-            active={activeFilter === 'checkout'}
-            onClick={() => setActiveFilter('checkout')}
-            ref={(el) => (activeFilter === 'checkout' ? setSelectedRef(el) : null)}
-          >
-            <StyledFilterInput
-              value={getShortDateString(dateRange[1])}
-              variant="standard"
-              label="Check Out"
-              placeholder="Add dates"
-              focused
-              size="small"
-              inputRef={(input) => activeFilter === 'checkout' && input && input.focus()}
-            />
-            {activeFilter === 'checkout' && dateRange[1] && (
-              <ClearButton size="small" onClick={() => setDateRange([dateRange[0], null])}>
-                <Close fontSize="small" />
-              </ClearButton>
-            )}
-          </FilterButton>
+              </FilterButton>
+            </>
+          ) : (
+            <FilterButton
+              active={activeFilter === 'date'}
+              onClick={() => onChangeFilter('date')}
+              ref={(el) => (activeFilter === 'date' ? setSelectedRef(el) : null)}
+            >
+              <StyledFilterInput
+                value={getShortDateString(dateRange[1])}
+                variant="standard"
+                label="Date"
+                placeholder="Add when you want to go"
+                focused
+                size="small"
+                inputRef={(input) => activeFilter === 'date' && input && input.focus()}
+              />
+              {activeFilter === 'date' && dateRange[1] && (
+                <ClearButton size="small" onClick={() => setDateRange([dateRange[0], null])}>
+                  <Close fontSize="small" />
+                </ClearButton>
+              )}
+            </FilterButton>
+          )}
 
           <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e1e3e1' }} />
 
           <FilterButton
-            onClick={() => setActiveFilter('who')}
+            onClick={() => onChangeFilter('who')}
             ref={(el) => (activeFilter === 'who' ? setSelectedRef(el) : null)}
           >
             <StyledFilterInput
@@ -265,10 +279,6 @@ const ExpandedTopFilter = ({ currentTab, currentFilter }) => {
       </Grid>
     </FiltersContainer>
   )
-}
-
-ExpandedTopFilter.propTypes = {
-  onFilterClick: PropTypes.func.isRequired,
 }
 
 export default ExpandedTopFilter
