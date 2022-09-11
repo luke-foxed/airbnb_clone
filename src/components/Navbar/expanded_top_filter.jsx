@@ -2,8 +2,9 @@ import { Close, Search } from '@mui/icons-material'
 import { Divider, Grid, IconButton, Paper, styled, TextField } from '@mui/material'
 import { Fragment, useState, useEffect, useContext } from 'react'
 import useOutsideClick from '../../lib/hooks/use_outside_click'
-import { DateDropdown, LocationDropdown } from './expanded_dropdowns'
-import { NavbarContext } from './constants'
+import { DATE_FORMATS, NavbarContext } from './constants'
+import DateDropdown from './expanded_dropdown/date_dropdown'
+import LocationDropdown from './expanded_dropdown/location_dropdown'
 
 // eslint-disable-next-line max-len
 const SEARCH_BUTTON_GRADIENT = 'linear-gradient(90deg, rgb(230,30,77) 0%, rgb(227,28,95) 50%, rgb(215,4,102) 67.5%, rgb(209,29,96) 100%)'
@@ -95,24 +96,8 @@ const ExpandedTopFilter = () => {
 
   const [location, setLocation] = useState('')
   const [dateRange, setDateRange] = useState([null, null])
+  const [dateFormat, setDateFormat] = useState(DATE_FORMATS[0])
   const [selectedRef, setSelectedRef] = useState(null)
-
-  const getShortDateString = (date) => {
-    const shortDate = date
-      ? `${new Date(date).getDate()} ${new Date(date).toLocaleString('en-us', { weekday: 'short' })}`
-      : ''
-    return shortDate
-  }
-
-  const getGridLayout = () => {
-    let gridTemplateColumns = ''
-    if (activeTab === 0) {
-      gridTemplateColumns = `2fr 2px 1fr 2px 1fr 2px ${activeFilter ? '2fr' : '1.5fr'}`
-    } else {
-      gridTemplateColumns = `2fr 2px 1.5fr 2px ${activeFilter ? '2fr' : '1.5fr'}`
-    }
-    return gridTemplateColumns
-  }
 
   useOutsideClick({ current: selectedRef }, () => {
     onChangeFilter('')
@@ -142,6 +127,30 @@ const ExpandedTopFilter = () => {
     if (activeFilter === 'checkout') {
       setDateRange([dateRange[0], date])
     }
+  }
+
+  const handleDateFormatSelect = (format) => {
+    setDateFormat(format)
+  }
+
+  const getShortDateString = (date) => {
+    const shortDate = date
+      ? `${new Date(date).getDate()} ${new Date(date).toLocaleString('en-us', { weekday: 'short' })}`
+      : ''
+    return shortDate
+  }
+
+  const getGridLayout = () => {
+    let gridTemplateColumns = ''
+    if (activeTab === 0) {
+      gridTemplateColumns = `2fr 2px 1fr 2px 1fr 2px ${activeFilter ? '2fr' : '1.5fr'}`
+      if (dateFormat !== 'calendar') {
+        gridTemplateColumns = '2fr 2px 1.5fr 2px 1.5fr'
+      }
+    } else {
+      gridTemplateColumns = `2fr 2px 1.5fr 2px ${activeFilter ? '2fr' : '1.5fr'}`
+    }
+    return gridTemplateColumns
   }
 
   return (
@@ -176,7 +185,7 @@ const ExpandedTopFilter = () => {
 
           <Divider orientation="vertical" flexItem style={{ height: '35%', margin: 'auto', borderColor: '#e5e6e5' }} />
 
-          {activeTab === 0 ? (
+          {activeTab === 0 && dateFormat === 'calendar' ? (
             <>
               <FilterButton
                 active={activeFilter === 'checkin'}
@@ -201,7 +210,12 @@ const ExpandedTopFilter = () => {
                         <Close fontSize="small" />
                       </ClearButton>
                     )}
-                    <DateDropdown dateRange={dateRange} onDatesSelect={handleDatesSelect} />
+                    <DateDropdown
+                      dateRange={dateRange}
+                      dateFormat={dateFormat}
+                      onDatesSelect={handleDatesSelect}
+                      onDateFormatSelect={handleDateFormatSelect}
+                    />
                   </>
                 )}
               </FilterButton>
@@ -242,16 +256,25 @@ const ExpandedTopFilter = () => {
               <StyledFilterInput
                 value={getShortDateString(dateRange[1])}
                 variant="standard"
-                label="Date"
+                label={dateFormat === 'flexible' ? 'When' : 'Date'}
                 placeholder="Add when you want to go"
                 focused
                 size="small"
                 inputRef={(input) => activeFilter === 'date' && input && input.focus()}
               />
-              {activeFilter === 'date' && dateRange[1] && (
-                <ClearButton size="small" onClick={() => setDateRange([dateRange[0], null])}>
-                  <Close fontSize="small" />
-                </ClearButton>
+              {activeFilter === 'date' && (
+                <>
+                  <ClearButton size="small" onClick={() => setDateRange([dateRange[0], null])}>
+                    <Close fontSize="small" />
+                  </ClearButton>
+
+                  <DateDropdown
+                    dateRange={dateRange}
+                    dateFormat={dateFormat}
+                    onDatesSelect={handleDatesSelect}
+                    onDateFormatSelect={handleDateFormatSelect}
+                  />
+                </>
               )}
             </FilterButton>
           )}

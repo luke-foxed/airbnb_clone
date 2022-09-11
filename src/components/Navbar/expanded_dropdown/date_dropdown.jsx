@@ -1,46 +1,12 @@
 import PropTypes from 'prop-types'
-import { ButtonBase, Grid, styled, ToggleButtonGroup, ToggleButton, Typography } from '@mui/material'
+import { Grid, styled, ToggleButtonGroup, ToggleButton, Typography, capitalize } from '@mui/material'
 import Image from 'next/image'
 import DatePicker from 'react-datepicker'
 
 import 'react-datepicker/dist/react-datepicker.css'
-import { useState } from 'react'
-import { DATE_FORMATS } from './constants'
-
-const REGIONS = [
-  { name: "I'm flexible", image: '/navbar/world.png' },
-  { name: 'United States', image: '/navbar/usa.png' },
-  { name: 'United Kingdom', image: '/navbar/uk.png' },
-  { name: 'Middle East', image: '/navbar/middleeast.png' },
-  { name: 'Spain', image: '/navbar/spain.png' },
-  { name: 'Southeast Asia', image: '/navbar/southeastasia.png' },
-]
-
-const DropdownContainer = styled('div')(({ width, left, height }) => ({
-  background: '#FFF',
-  position: 'absolute',
-  cursor: 'default',
-  top: '155px',
-  marginLeft: `-${left}`,
-  borderRadius: '30px',
-  boxShadow: '0px 0px 20px 3px rgba(0,0,0,0.2)',
-  padding: '45px',
-  width,
-  height,
-}))
-
-const ImageButton = styled(ButtonBase, { shouldForwardProp: (props) => props !== 'active' })(({ active }) => ({
-  margin: '5px',
-  borderRadius: '15px',
-  border: active ? '2px solid #000' : '1px solid #e5e6e5',
-  transition: 'border-color 0.4s ease',
-  img: {
-    borderRadius: '15px',
-  },
-  ':hover': {
-    borderColor: '#000',
-  },
-}))
+import { useState, useContext } from 'react'
+import { DATE_LENGTH, MONTHS, NavbarContext } from '../constants'
+import { DropdownContainer } from '../../../lib/hooks/styles'
 
 const ACTIVE_DATE_STYLES = {
   zIndex: 2,
@@ -49,7 +15,7 @@ const ACTIVE_DATE_STYLES = {
   color: '#fff !important',
 }
 
-const ToggleGroupContainer = styled(ToggleButtonGroup)({
+const DateFormatToggleContainer = styled(ToggleButtonGroup)({
   marginBottom: '10px',
   backgroundColor: '#e5e6e5',
   height: '44px',
@@ -61,7 +27,7 @@ const ToggleGroupContainer = styled(ToggleButtonGroup)({
   },
 })
 
-const DateToggleButton = styled(ToggleButton)({
+const DateFormatToggleButton = styled(ToggleButton)({
   margin: 'auto',
   backgroundColor: 'transparent',
   color: '#000',
@@ -74,6 +40,31 @@ const DateToggleButton = styled(ToggleButton)({
     backgroundColor: '#fff',
   },
 })
+
+const DateToggleContainer = styled(ToggleButtonGroup)({
+  '& .Mui-selected': {
+    backgroundColor: '#fff !important',
+    fontWeight: 500,
+    border: '2px solid #000 !important',
+  },
+})
+
+const DateToggleButton = styled(ToggleButton, { shouldForwardProp: (props) => props !== 'border' })(
+  ({ border = 200 }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center !important',
+    alignItems: 'center',
+    borderRadius: `${border}px !important`,
+    margin: '10px',
+    border: '1px solid rgba(0,0,0,0.15) !important',
+    fontWeight: 500,
+    ':hover': {
+      backgroundColor: '#fff',
+      border: '2px solid #000 !important',
+    },
+  }),
+)
 
 const DatePickerContainer = styled('div')({
   width: '100%',
@@ -171,12 +162,27 @@ const DatePickerContainer = styled('div')({
   },
 })
 
-export const DateDropdown = ({ dateRange, onDatesSelect }) => {
-  const [dateFormat, setDateFormat] = useState(DATE_FORMATS[0])
+const DateDropdown = ({ dateRange, onDatesSelect, dateFormat, onDateFormatSelect }) => {
+  const [dateDuration, setDateDuration] = useState(DATE_LENGTH[1])
+  const [dateSelection, setDateSelection] = useState([])
+  const { onChangeFilter } = useContext(NavbarContext)
   const [startDate, endDate] = dateRange
 
   const handleChangeDateFormat = (event, format) => {
-    setDateFormat(format)
+    onDateFormatSelect(format)
+    if (format === 'flexible') {
+      onChangeFilter('date')
+    } else {
+      onChangeFilter('checkin')
+    }
+  }
+
+  const handleChangeDateDuration = (event, duration) => {
+    setDateDuration(duration)
+  }
+
+  const handleChangeDateSelection = (event, selection) => {
+    setDateSelection(selection)
   }
 
   const renderHeader = ({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
@@ -208,28 +214,81 @@ export const DateDropdown = ({ dateRange, onDatesSelect }) => {
     </div>
   )
 
+  const renderMonthCarousel = () => {
+    const cards = []
+    const date = new Date()
+    let month = date.getMonth() - 1
+    let year = date.getFullYear()
+
+    for (let i = 0; i < 12; i += 1) {
+      year = month + 1 > 11 ? 2023 : year
+      month = month + 1 > 11 ? 0 : (month += 1)
+      cards.push({ month: MONTHS[month], year, selected: dateSelection.includes(MONTHS[month]) })
+    }
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'row', maxWidth: '100%', overflow: 'scroll' }}>
+        <DateToggleContainer onChange={handleChangeDateSelection} value={dateSelection}>
+          {cards.map(({ month: m, year: y, selected }) => (
+            <DateToggleButton style={{ width: '136px', padding: '28px', height: '136px' }} border={15} value={m}>
+              <Image width={32} height={32} src={`/navbar/calendar${selected ? '_selected' : ''}.jpeg`} />
+              <Typography style={{ fontSize: '14px', fontWeight: 500, color: '#000', paddingTop: '8px' }}>
+                {m}
+              </Typography>
+              <Typography style={{ fontSize: '12px', color: '#000' }}>{y}</Typography>
+            </DateToggleButton>
+          ))}
+        </DateToggleContainer>
+      </div>
+    )
+  }
+
   // prevent propogation so 'checkin' isn't refocused when this dropdown is clicked
   // while 'checkout' is active
   return (
     <DropdownContainer width="850px" left="300px" height="511px" onClick={(e) => e.stopPropagation()}>
       <DatePickerContainer>
-        <ToggleGroupContainer value={dateFormat} exclusive onChange={handleChangeDateFormat}>
-          <DateToggleButton value="calendar">Choose Dates</DateToggleButton>
-          <DateToggleButton value="flexible">I&apos;m Flexible</DateToggleButton>
-        </ToggleGroupContainer>
+        <DateFormatToggleContainer value={dateFormat} exclusive onChange={handleChangeDateFormat}>
+          <DateFormatToggleButton value="calendar">Choose Dates</DateFormatToggleButton>
+          <DateFormatToggleButton value="flexible">I&apos;m Flexible</DateFormatToggleButton>
+        </DateFormatToggleContainer>
 
-        <DatePicker
-          selectsRange
-          inline
-          useWeekdaysShort
-          monthsShown={2}
-          peekNextMonth={false}
-          startDate={startDate}
-          endDate={endDate}
-          onSelect={onDatesSelect}
-          minDate={new Date()}
-          renderCustomHeader={renderHeader}
-        />
+        {dateFormat === 'calendar' ? (
+          <DatePicker
+            selectsRange
+            inline
+            useWeekdaysShort
+            monthsShown={2}
+            peekNextMonth={false}
+            startDate={startDate}
+            endDate={endDate}
+            onSelect={onDatesSelect}
+            minDate={new Date()}
+            renderCustomHeader={renderHeader}
+          />
+        ) : (
+          <Grid
+            container
+            direction="column"
+            alignItems="center"
+            style={{ width: '100%', marginTop: '20px' }}
+            gap="10px"
+          >
+            <Typography style={{ fontWeight: 600 }}>How long would you like to stay?</Typography>
+
+            <DateToggleContainer value={dateDuration} onChange={handleChangeDateDuration} exclusive>
+              {DATE_LENGTH.map((length) => (
+                <DateToggleButton style={{ height: '35px' }} value={length}>
+                  {capitalize(length)}
+                </DateToggleButton>
+              ))}
+            </DateToggleContainer>
+
+            <Typography style={{ marginTop: '20px', fontWeight: 600 }}>When do you want to go?</Typography>
+
+            {renderMonthCarousel()}
+          </Grid>
+        )}
       </DatePickerContainer>
     </DropdownContainer>
   )
@@ -237,32 +296,9 @@ export const DateDropdown = ({ dateRange, onDatesSelect }) => {
 
 DateDropdown.propTypes = {
   dateRange: PropTypes.arrayOf(PropTypes.number).isRequired,
+  dateFormat: PropTypes.string.isRequired,
+  onDateFormatSelect: PropTypes.func.isRequired,
   onDatesSelect: PropTypes.func.isRequired,
 }
 
-export const LocationDropdown = ({ selected, onLocationSelect }) => (
-  <DropdownContainer width="490px" left="20px" height="470px">
-    <Typography style={{ fontSize: '13px', fontWeight: 700 }}>Search by region</Typography>
-    <Grid container justifyContent="space-between" rowGap={4} style={{ marginTop: '20px' }}>
-      {REGIONS.map(({ name, image }) => (
-        <Grid item xs={4} textAlign="start">
-          <ImageButton
-            onClick={(e) => {
-              e.stopPropagation()
-              onLocationSelect(name)
-            }}
-            active={selected === name}
-          >
-            <Image width={120} height={120} src={image} />
-          </ImageButton>
-          <Typography style={{ fontSize: '13px', marginLeft: '5px' }}>{name}</Typography>
-        </Grid>
-      ))}
-    </Grid>
-  </DropdownContainer>
-)
-
-LocationDropdown.propTypes = {
-  onLocationSelect: PropTypes.func.isRequired,
-  selected: PropTypes.bool.isRequired,
-}
+export default DateDropdown
