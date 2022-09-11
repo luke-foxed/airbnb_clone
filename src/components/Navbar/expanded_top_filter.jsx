@@ -112,7 +112,7 @@ const ExpandedTopFilter = () => {
   }, [selectedRef])
 
   const handleLocationSelect = (val) => {
-    onChangeFilter('checkin')
+    onChangeFilter(dateFormat === 'flexible' ? 'date' : 'checkin')
     setLocation(val)
   }
 
