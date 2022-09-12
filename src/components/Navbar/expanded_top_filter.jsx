@@ -1,8 +1,8 @@
 import { Close, Search } from '@mui/icons-material'
-import { Divider, Grid, IconButton, Paper, styled, TextField } from '@mui/material'
+import { capitalize, Divider, Grid, IconButton, Paper, styled, TextField } from '@mui/material'
 import { Fragment, useState, useEffect, useContext } from 'react'
 import useOutsideClick from '../../lib/hooks/use_outside_click'
-import { DATE_FORMATS, NavbarContext } from './constants'
+import { DATE_FORMATS, DATE_LENGTH, NavbarContext } from './constants'
 import DateDropdown from './expanded_dropdown/date_dropdown'
 import LocationDropdown from './expanded_dropdown/location_dropdown'
 
@@ -97,6 +97,7 @@ const ExpandedTopFilter = () => {
   const [location, setLocation] = useState('')
   const [dateRange, setDateRange] = useState([null, null])
   const [dateFormat, setDateFormat] = useState(DATE_FORMATS[0])
+  const [flexibleDate, setFlexibleDate] = useState({ duration: DATE_LENGTH[1], dates: [] })
   const [selectedRef, setSelectedRef] = useState(null)
 
   useOutsideClick({ current: selectedRef }, () => {
@@ -133,6 +134,10 @@ const ExpandedTopFilter = () => {
     setDateFormat(format)
   }
 
+  const handleFlexibleDateChange = (date) => {
+    setFlexibleDate(date)
+  }
+
   const getShortDateString = (date) => {
     const shortDate = date
       ? `${new Date(date).getDate()} ${new Date(date).toLocaleString('en-us', { weekday: 'short' })}`
@@ -151,6 +156,14 @@ const ExpandedTopFilter = () => {
       gridTemplateColumns = `2fr 2px 1.5fr 2px ${activeFilter ? '2fr' : '1.5fr'}`
     }
     return gridTemplateColumns
+  }
+
+  const getFlexibleDateString = () => {
+    let dateString = `${capitalize(flexibleDate.duration)} in`
+    flexibleDate.dates.forEach((date) => {
+      dateString += ` ${date.substring(0, 3)},`
+    })
+    return dateString
   }
 
   return (
@@ -213,8 +226,10 @@ const ExpandedTopFilter = () => {
                     <DateDropdown
                       dateRange={dateRange}
                       dateFormat={dateFormat}
+                      flexibleDate={flexibleDate}
                       onDatesSelect={handleDatesSelect}
                       onDateFormatSelect={handleDateFormatSelect}
+                      onFlexibleDateChange={handleFlexibleDateChange}
                     />
                   </>
                 )}
@@ -257,7 +272,7 @@ const ExpandedTopFilter = () => {
                 value={getShortDateString(dateRange[1])}
                 variant="standard"
                 label={dateFormat === 'flexible' ? 'When' : 'Date'}
-                placeholder="Add when you want to go"
+                placeholder={dateFormat === 'flexible' ? getFlexibleDateString() : 'Add when you want to go'}
                 focused
                 size="small"
                 inputRef={(input) => activeFilter === 'date' && input && input.focus()}
@@ -271,8 +286,10 @@ const ExpandedTopFilter = () => {
                   <DateDropdown
                     dateRange={dateRange}
                     dateFormat={dateFormat}
+                    flexibleDate={flexibleDate}
                     onDatesSelect={handleDatesSelect}
                     onDateFormatSelect={handleDateFormatSelect}
+                    onFlexibleDateChange={handleFlexibleDateChange}
                   />
                 </>
               )}

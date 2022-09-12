@@ -4,7 +4,7 @@ import Image from 'next/image'
 import DatePicker from 'react-datepicker'
 
 import 'react-datepicker/dist/react-datepicker.css'
-import { useState, useContext } from 'react'
+import { useContext } from 'react'
 import { DATE_LENGTH, MONTHS, NavbarContext } from '../constants'
 import { DropdownContainer } from '../../../lib/hooks/styles'
 
@@ -162,11 +162,18 @@ const DatePickerContainer = styled('div')({
   },
 })
 
-const DateDropdown = ({ dateRange, onDatesSelect, dateFormat, onDateFormatSelect }) => {
-  const [dateDuration, setDateDuration] = useState(DATE_LENGTH[1])
-  const [dateSelection, setDateSelection] = useState([])
+const DateDropdown = ({
+  dateRange,
+  dateFormat,
+  flexibleDate,
+  onDatesSelect,
+  onDateFormatSelect,
+  onFlexibleDateChange,
+}) => {
   const { onChangeFilter } = useContext(NavbarContext)
   const [startDate, endDate] = dateRange
+  const { dates, duration } = flexibleDate
+  const monthCards = [] // messy storing it here but need to access the array index values
 
   const handleChangeDateFormat = (event, format) => {
     onDateFormatSelect(format)
@@ -177,12 +184,18 @@ const DateDropdown = ({ dateRange, onDatesSelect, dateFormat, onDateFormatSelect
     }
   }
 
-  const handleChangeDateDuration = (event, duration) => {
-    setDateDuration(duration)
+  const handleChangeDateDuration = (event, updatedDuration) => {
+    onFlexibleDateChange({ ...flexibleDate, duration: updatedDuration })
   }
 
-  const handleChangeDateSelection = (event, selection) => {
-    setDateSelection(selection)
+  const handleFlexibleDateChange = (event, selection) => {
+    // need to sort selection in the expected order (e.g. jan 2023 should appear after september 2022 and never before)
+    // (yeah this is messy, I don't care... I'm tired and it works)
+    const sortedDates = selection.sort(
+      (a, b) => monthCards.indexOf(monthCards.find((card) => card.month === a))
+        - monthCards.indexOf(monthCards.find((card) => card.month === b)),
+    )
+    onFlexibleDateChange({ ...flexibleDate, dates: sortedDates })
   }
 
   const renderHeader = ({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
@@ -215,7 +228,6 @@ const DateDropdown = ({ dateRange, onDatesSelect, dateFormat, onDateFormatSelect
   )
 
   const renderMonthCarousel = () => {
-    const cards = []
     const date = new Date()
     let month = date.getMonth() - 1
     let year = date.getFullYear()
@@ -223,13 +235,13 @@ const DateDropdown = ({ dateRange, onDatesSelect, dateFormat, onDateFormatSelect
     for (let i = 0; i < 12; i += 1) {
       year = month + 1 > 11 ? 2023 : year
       month = month + 1 > 11 ? 0 : (month += 1)
-      cards.push({ month: MONTHS[month], year, selected: dateSelection.includes(MONTHS[month]) })
+      monthCards.push({ month: MONTHS[month], year, selected: dates.includes(MONTHS[month]), index: i })
     }
 
     return (
       <div style={{ display: 'flex', flexDirection: 'row', maxWidth: '100%', overflow: 'scroll' }}>
-        <DateToggleContainer onChange={handleChangeDateSelection} value={dateSelection}>
-          {cards.map(({ month: m, year: y, selected }) => (
+        <DateToggleContainer onChange={handleFlexibleDateChange} value={dates}>
+          {monthCards.map(({ month: m, year: y, selected }) => (
             <DateToggleButton style={{ width: '136px', padding: '28px', height: '136px' }} border={15} value={m}>
               <Image width={32} height={32} src={`/navbar/calendar${selected ? '_selected' : ''}.jpeg`} />
               <Typography style={{ fontSize: '14px', fontWeight: 500, color: '#000', paddingTop: '8px' }}>
@@ -276,7 +288,7 @@ const DateDropdown = ({ dateRange, onDatesSelect, dateFormat, onDateFormatSelect
           >
             <Typography style={{ fontWeight: 600 }}>How long would you like to stay?</Typography>
 
-            <DateToggleContainer value={dateDuration} onChange={handleChangeDateDuration} exclusive>
+            <DateToggleContainer value={duration} onChange={handleChangeDateDuration} exclusive>
               {DATE_LENGTH.map((length) => (
                 <DateToggleButton style={{ height: '35px' }} value={length}>
                   {capitalize(length)}
@@ -297,8 +309,11 @@ const DateDropdown = ({ dateRange, onDatesSelect, dateFormat, onDateFormatSelect
 DateDropdown.propTypes = {
   dateRange: PropTypes.arrayOf(PropTypes.number).isRequired,
   dateFormat: PropTypes.string.isRequired,
+  flexibleDate: PropTypes.objectOf({ duration: PropTypes.string, dates: PropTypes.arrayOf(PropTypes.number) })
+    .isRequired,
   onDateFormatSelect: PropTypes.func.isRequired,
   onDatesSelect: PropTypes.func.isRequired,
+  onFlexibleDateChange: PropTypes.func.isRequired,
 }
 
 export default DateDropdown
